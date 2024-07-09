@@ -20,6 +20,7 @@ defer func() {
 }()
 
 // preparing the ground
+fmt.Println(utils.Banner)
 fmt.Println("Enter an expression to evaluate, q to quit:")
 var s string
 var history []string
