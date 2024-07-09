@@ -28,7 +28,7 @@ var isCommand bool
   
  for {
   s=""
-  fmt.Print("gopher-> ")
+  fmt.Print("-> ")
 
 /*** Reading the expression ***/ 
   oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
@@ -133,8 +133,6 @@ for {
   result := utils.EvaluateRPN(rpn)
 
     // printing the result
-    fmt.Println("Expresión:", s)
-    fmt.Println("RPN:", rpn)
     fmt.Println(result) 
    }
   }
