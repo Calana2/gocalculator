@@ -19,6 +19,16 @@ var HelpMenu = [...]string{
 }
 
 
+var Banner string = `
+..####....####....####....####...##.......####..
+.##......##..##..##..##..##..##..##......##..##.
+.##.###..##..##..##......######..##......##.....
+.##..##..##..##..##..##..##..##..##......##..##.
+..####....####....####...##..##..######...####..
+................................................`
+
+
+
 
 /*** Functions to decompose the expression ***/
 
@@ -34,12 +44,13 @@ func getSymbols(s string) (arr []string, l int) {
 
   if unicode.IsDigit(char) { // is a number
     number := string(s[i])  
-    for ; i+1 < len(s) && (unicode.IsDigit(rune(s[i+1]))) ; {
+    for ; i+1 < len(s) && ( unicode.IsDigit(rune(s[i+1])) ||
+                            string(s[i+1]) == "." ) ; {
       i++ 
       number+=string(s[i])  // take all the chars of the number
     }
     arr = append(arr,number) 
-    if number[0] == '0' {   // fixing a 0xxxx like number
+    if number[0] == '0' && len(number) > 1 && number[1] != '.' {   // fixing a 0xxxx like number
      arr[len(arr)-1] = "0"
     } 
   }  else if isAritmeticOperator(string(s[i])) {                                                    // is an operator
@@ -113,7 +124,7 @@ func InfixToRPN(infix string) ([]string, error) {
  return rpn,nil
 }
 
-func EvaluateRPN(rpn []string) int {
+func EvaluateRPN(rpn []string) float64 {
 /* Iterate over the elements in reverse polish notation
    IF it is a number it stores it in the stack, 
    ELSE IF it is an operator, it takes the nth and the n-1st value out of the stack, 
@@ -127,7 +138,7 @@ defer func() {
  }
 }()
 
- stack := []int{}
+ stack := []float64{}
  for _, token := range rpn {
   switch token {
   case "+", "-", "*", "/", "%":
@@ -144,14 +155,14 @@ defer func() {
     stack = append(stack, operand1*operand2)
    case "/":
     if operand2 == 0 {
-     panic("Division by zero")
+     panic("Divition by zero")
     }
     stack = append(stack, operand1/operand2)
    case "%":
   //  stack = append(stack, operand1%operand2)
    }
   default:
-   num, _ := strconv.Atoi(token)
+   num, _ := strconv.ParseFloat(token,64)
    stack = append(stack,num)
   }
  }
