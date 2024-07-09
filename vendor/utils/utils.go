@@ -4,13 +4,27 @@ import (
 	"errors"
 	"strconv"
 	"unicode"
-  "strings"
-  "fmt"
+   "strings"
+   "fmt"
 )
 
+
+var HelpMenu = [...]string{
+ "gocalc beta by Calana2.",
+ "",
+ "Available commands:",
+ "? - Help",
+ "clear_history - Delete the history",
+ "show_history  - Show the history",
+}
+
+
+
+/*** Functions to decompose the expression ***/
+
+func getSymbols(s string) (arr []string, l int) {
 // Input: A expression
 // Output: An array of strings, containing numbers and operators
-func getSymbols(s string) (arr []string, l int) {
 
  s = strings.TrimSpace(s)
  s = strings.ReplaceAll(s," ","")
@@ -20,7 +34,7 @@ func getSymbols(s string) (arr []string, l int) {
 
   if unicode.IsDigit(char) { // is a number
     number := string(s[i])  
-    for ; i+1 < len(s) && unicode.IsDigit(rune(s[i+1])) ; {
+    for ; i+1 < len(s) && (unicode.IsDigit(rune(s[i+1]))) ; {
       i++ 
       number+=string(s[i])  // take all the chars of the number
     }
@@ -40,11 +54,18 @@ func getSymbols(s string) (arr []string, l int) {
  return arr,l
 }
 
+func isAritmeticOperator(token string) bool {
 // Input: A string with LEN=1
 // Output; TRUE if is an operator, otherwise FALSE
-func isAritmeticOperator(token string) bool {
- return token == "+" || token == "-" || token == "*" || token == "/" || token == "%"
+ return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "(" || token == ")"
 }
+
+
+
+
+/*** Functions to calculate the expression ***/
+
+
 
 func InfixToRPN(infix string) ([]string, error) {
 
@@ -54,6 +75,13 @@ func InfixToRPN(infix string) ([]string, error) {
 
  if l <= 0 {
   return []string{},errors.New("Not allowed expression")
+ }
+
+ // when the first number is negative an overflow may be caused
+ if symbols[0] == "-" {
+  num := symbols[1]
+  symbols = symbols[1:len(symbols)]
+  symbols[0] = "-" + num
  }
 
  for _, token := range symbols {
@@ -86,6 +114,19 @@ func InfixToRPN(infix string) ([]string, error) {
 }
 
 func EvaluateRPN(rpn []string) int {
+/* Iterate over the elements in reverse polish notation
+   IF it is a number it stores it in the stack, 
+   ELSE IF it is an operator, it takes the nth and the n-1st value out of the stack, 
+   therefore performs n OPERATOR n-1 and stores it in the stack
+   FINALLY it RETURNS the final value
+*/
+
+defer func() {
+ if r := recover(); r != nil {
+  fmt.Println("Error: ",r)               
+ }
+}()
+
  stack := []int{}
  for _, token := range rpn {
   switch token {
@@ -102,26 +143,32 @@ func EvaluateRPN(rpn []string) int {
    case "*":
     stack = append(stack, operand1*operand2)
    case "/":
+    if operand2 == 0 {
+     panic("Division by zero")
+    }
     stack = append(stack, operand1/operand2)
    case "%":
-    stack = append(stack, operand1%operand2)
+  //  stack = append(stack, operand1%operand2)
    }
   default:
    num, _ := strconv.Atoi(token)
-   stack = append(stack, num)
+   stack = append(stack,num)
   }
  }
  return stack[0]
 }
 
-
 func precedence(operator string) int {
+// Input: An operator
+// Output: The level of precedence (0 is top)
  switch operator {
- case "+", "-":
+ case "%":
   return 1
- case "*", "/", "%":
+ case "+", "-":
   return 2
+ case "*", "/":
+  return 3
  }
- return 0   // for parenthesis
+ return 0   // for parenthesis 
 }
 
