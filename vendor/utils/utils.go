@@ -56,7 +56,6 @@ func getSymbols(s string) (arr []string, l int) {
   }  else if isAritmeticOperator(string(s[i])) {                                                    // is an operator
     arr = append(arr,string(s[i]))
   } else {                          
-    fmt.Println(string(s[i]))
     return arr,-1                                                             // -1 , error for not allowed expressions
   }
  }
@@ -131,17 +130,22 @@ func EvaluateRPN(rpn []string) float64 {
    therefore performs n OPERATOR n-1 and stores it in the stack
    FINALLY it RETURNS the final value
 */
-
+var result float64
 defer func() {
  if r := recover(); r != nil {
   fmt.Println("Error: ",r)               
- }
+  result = 0
+ } 
 }()
 
  stack := []float64{}
  for _, token := range rpn {
   switch token {
   case "+", "-", "*", "/", "%":
+   if len(stack) < 2 {
+    panic("Bad expression")
+    return 0
+   }
    operand2 := stack[len(stack)-1]
    stack = stack[:len(stack)-1]
    operand1 := stack[len(stack)-1]
@@ -166,7 +170,8 @@ defer func() {
    stack = append(stack,num)
   }
  }
- return stack[0]
+ result = stack[0]
+ return result
 }
 
 func precedence(operator string) int {
