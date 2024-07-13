@@ -2,10 +2,11 @@ package utils
 
 import (
 	"errors"
+	"fmt"
+	"math"
 	"strconv"
+	"strings"
 	"unicode"
-   "strings"
-   "fmt"
 )
 
 
@@ -78,7 +79,9 @@ func isAritmeticOperator(token string) bool {
 
 
 func InfixToRPN(infix string) ([]string, error) {
-
+/** It converts an infix expression to reverse polish notation
+    using the shunting yard algorithm
+**/
  var rpn []string
  stack := []string{}
  symbols,l := getSymbols(infix)
@@ -133,8 +136,7 @@ func EvaluateRPN(rpn []string) float64 {
 var result float64
 defer func() {
  if r := recover(); r != nil {
-  fmt.Println("Error: ",r)               
-  result = 0
+  fmt.Println(r)               
  } 
 }()
 
@@ -144,7 +146,6 @@ defer func() {
   case "+", "-", "*", "/", "%":
    if len(stack) < 2 {
     panic("Bad expression")
-    return 0
    }
    operand2 := stack[len(stack)-1]
    stack = stack[:len(stack)-1]
@@ -158,12 +159,16 @@ defer func() {
    case "*":
     stack = append(stack, operand1*operand2)
    case "/":
+    // Divition by zero
     if operand2 == 0 {
-     panic("Divition by zero")
+     if operand1 != 0 {
+      panic("= Infinity")
+     } 
+      panic("Divition by zero: Indetermination")
     }
     stack = append(stack, operand1/operand2)
    case "%":
-  //  stack = append(stack, operand1%operand2)
+    stack = append(stack, fmod(operand1,operand2))
    }
   default:
    num, _ := strconv.ParseFloat(token,64)
@@ -171,6 +176,7 @@ defer func() {
   }
  }
  result = stack[0]
+ fmt.Print("= ")
  return result
 }
 
@@ -186,5 +192,10 @@ func precedence(operator string) int {
   return 3
  }
  return 0   // for parenthesis 
+}
+
+func fmod(dividend float64, divisor float64) float64 {
+// Modulus for floats
+ return dividend - math.Floor(dividend / divisor) * divisor 
 }
 

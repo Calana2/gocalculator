@@ -47,7 +47,7 @@ for {
    term.Restore(int(os.Stdin.Fd()),oldState) // return back to normal
    break
 
-  } else if b[0] == 8 { // ITS BACKSPACE, DELETE LAST CHAR
+  } else if b[0] == 8 || b[0] == 127 { // ITS BACKSPACE, DELETE LAST CHAR
     if len(s) > 0 {     // Trying to avoid that the terminal gets broken
      s=s[:len(s)-1] 
      fmt.Print("\b \b") // delete char
@@ -95,7 +95,10 @@ for {
   
 }
 
-  if s == "quit" || s == "q" || s == "exit" { break }
+  if s == "quit" || s == "q" || s == "exit" { 
+    fmt.Println()
+    break 
+  }
 
   switch s {
    case "?":
@@ -134,7 +137,7 @@ for {
   result := utils.EvaluateRPN(rpn)
 
     // printing the result
-    fmt.Println(result) 
+    fmt.Printf("%v\n",result) 
    }
   }
     // adding the correct expression to the history
