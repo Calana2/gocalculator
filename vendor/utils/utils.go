@@ -68,7 +68,7 @@ func getSymbols(s string) (arr []string, l int) {
 func isAritmeticOperator(token string) bool {
 // Input: A string with LEN=1
 // Output; TRUE if is an operator, otherwise FALSE
- return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "(" || token == ")"
+ return token == "+" || token == "-" || token == "*" || token == "/" || token == "%" || token == "(" || token == ")" || token == "^"
 }
 
 
@@ -99,7 +99,7 @@ func InfixToRPN(infix string) ([]string, error) {
 
  for _, token := range symbols {
   switch token {
-  case "+", "-", "*", "/", "%":
+  case "+", "-", "*", "/", "%", "^":
    for len(stack) > 0 && precedence(stack[len(stack)-1]) >= precedence(token) {
     rpn = append(rpn, stack[len(stack)-1])
     stack = stack[:len(stack)-1]
@@ -126,7 +126,7 @@ func InfixToRPN(infix string) ([]string, error) {
  return rpn,nil
 }
 
-func EvaluateRPN(rpn []string) float64 {
+func EvaluateRPN(rpn []string) (float64) {
 /* Iterate over the elements in reverse polish notation
    IF it is a number it stores it in the stack, 
    ELSE IF it is an operator, it takes the nth and the n-1st value out of the stack, 
@@ -143,7 +143,7 @@ defer func() {
  stack := []float64{}
  for _, token := range rpn {
   switch token {
-  case "+", "-", "*", "/", "%":
+  case "+", "-", "*", "/", "%", "^":
    if len(stack) < 2 {
     panic("Bad expression")
    }
@@ -162,13 +162,15 @@ defer func() {
     // Divition by zero
     if operand2 == 0 {
      if operand1 != 0 {
-      panic("= Infinity")
+      panic("Infinity")
      } 
       panic("Divition by zero: Indetermination")
     }
     stack = append(stack, operand1/operand2)
    case "%":
     stack = append(stack, fmod(operand1,operand2))
+   case "^":
+    stack = append(stack, math.Pow(operand1,operand2))
    }
   default:
    num, _ := strconv.ParseFloat(token,64)
@@ -176,13 +178,12 @@ defer func() {
   }
  }
  result = stack[0]
- fmt.Print("= ")
  return result
 }
 
 func precedence(operator string) int {
 // Input: An operator
-// Output: The level of precedence (0 is top)
+// Output: The level of precedence
  switch operator {
  case "%":
   return 1
@@ -190,8 +191,10 @@ func precedence(operator string) int {
   return 2
  case "*", "/":
   return 3
+ case "^":
+  return 4
  }
- return 0   // for parenthesis 
+ return 0   // for parenthesis
 }
 
 func fmod(dividend float64, divisor float64) float64 {
