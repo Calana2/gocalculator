@@ -13,6 +13,8 @@ import (
 var HelpMenu = [...]string{
  "gocalc beta by Calana2.",
  "",
+ "Available operators: + - * / ^ % ( )",
+ "",
  "Available commands:",
  "? - Help",
  "clear_history - Delete the history",

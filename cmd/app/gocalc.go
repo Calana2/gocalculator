@@ -185,7 +185,6 @@ func main() {
 		// adding the correct expression to the history
 		history = append(history, s)
 		historyPointer = len(history) - 1
-    fmt.Println(history)
 	} // principal loop
 
 	// Saving the history
