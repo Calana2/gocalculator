@@ -122,7 +122,7 @@ func main() {
 
 			} else {
 				s += string(b)
-				fmt.Print(string(b))
+        fmt.Printf(string(b))
 				if len(history) >= HISTORY_LEN {
           history = history[1:]
 		      historyPointer = len(history) - 1
