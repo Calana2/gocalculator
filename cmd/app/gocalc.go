@@ -2,18 +2,23 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
+
 	// extra
-	"golang.org/x/term"
 	"utils"
+
+	"golang.org/x/term"
 )
 
 var reader *bufio.Reader = bufio.NewReader(os.Stdin)
 const HISTORY_LEN = 20
 
 func main() {
+  HIDE_BANNER := flag.Bool("n",false,"Hide banner")
+  flag.Parse()
 
 	// in case of panic
 	defer func() {
@@ -23,7 +28,9 @@ func main() {
 	}()
 
 	// preparing the ground
-	fmt.Println(utils.Banner)
+  if !(*HIDE_BANNER) {
+   fmt.Println(utils.Banner)
+  }
 	fmt.Println("Enter an expression to evaluate, ? to help, q to quit:")
 	var s string
 	var history []string
@@ -144,13 +151,13 @@ func main() {
 			}
 			isCommand = true
 
-		case "clear_history":
+		case "ch":
 			history = []string{}
 			historyPointer = 0
 			isCommand = true
 			fmt.Println()
 
-		case "show_history":
+		case "sh":
 			fmt.Println()
 			for i, t := range history {
 				fmt.Printf("%d: %s\n", i+1, t)

@@ -17,8 +17,8 @@ var HelpMenu = [...]string{
  "",
  "Available commands:",
  "? - Help",
- "clear_history - Delete the history",
- "show_history  - Show the history",
+ "ch - Clear history",
+ "sh  - Displays history",
 }
 
 
